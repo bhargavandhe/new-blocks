@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Page404 from "./pages/Page404";
 import Register from "./pages/Register";
+import Details from "./pages/Details";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Switch>
           <Route exact path="/" component={Dashboard} />
           <Route path="/login" component={Login} />
+          <Route path="/details" component={Details} />
           <Route path="/register" component={Register} />
           <Route path="" component={Page404} />
         </Switch>

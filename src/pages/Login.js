@@ -31,7 +31,8 @@ function Login() {
 
   function handleSubmit() {
     login(inputs.aadhar, inputs.password).then((res) => {
-      history.push("/");
+      console.log(res);
+      if (res) history.push("/");
     });
   }
 
