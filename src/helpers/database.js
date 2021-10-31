@@ -3,6 +3,7 @@ import ipfs from "../ipfs";
 import { collection, addDoc, getDoc } from "firebase/firestore";
 import CryptoJS, { AES } from "crypto-js";
 import { generate, verify } from "password-hash";
+import axios from "axios";
 
 export async function register(uid, password, ekyc) {
   // create doc -> uid
@@ -11,28 +12,29 @@ export async function register(uid, password, ekyc) {
   // store on ipfs
   // get hash from ipfs
   // add to firebase
-  // await db
-  //   .collection("users")
-  //   .doc(uid)
-  //   .set({ blockHash: cid, privateKey: privateKey, requests: [] });
-}
-
-export async function login(uid, password) {
-  const res = await db.collection("users").doc(uid).get();
-  const data = res.data();
 
   const privateKey = generate(uid + password);
 
-  const enc = AES.encrypt(
-    JSON.stringify({ name: "bhargav andhe", message: "helloworld" }),
-    privateKey
-  );
-  console.log(enc);
+  const _data = AES.encrypt(JSON.stringify(ekyc), privateKey);
 
-  const dec = AES.decrypt(enc.toString(), privateKey);
-  console.log(Buffer(JSON.parse(dec.toString(CryptoJS.enc.Utf8))));
+  const buffer = Buffer.from(_data.toString());
+  ipfs.files.add(buffer).then(async (res) => {
+    await db
+      .collection("users")
+      .doc(uid)
+      .set({ blockHash: res[0].hash, privateKey: privateKey, requests: [] });
 
-  // ipfs.add(Buffer(JSON.parse(dec.toString(CryptoJS.enc.Utf8))))
+    // const re = await ipfs.files.cat(hash);
+    // const dec = AES.decrypt(re.toString(), privateKey);
+    // console.log(dec.toString(CryptoJS.enc.Utf8));
+  });
+}
 
-  return verify(uid + password, data.privateKey);
+export async function getData(uid) {
+  const res = await db.collection("users").doc(uid).get();
+  return res.data();
+}
+
+export async function login(uid, password) {
+  return verify(uid + password, getData(uid).privateKey);
 }
