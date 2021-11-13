@@ -59,5 +59,7 @@ export async function getEkyc(txnId, otp, uid) {
     },
   });
 
+  console.log(res.data);
+
   return xml2js(res.data.eKycString, { compact: true, spaces: 4 });
 }

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { React, useEffect, useState } from "react";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
@@ -12,6 +13,10 @@ import {
   getResponses,
   getEkyc,
   getBlockData,
+  getDataFromFirebase,
+  addToIPFS,
+  updateKYC,
+  getRawEkyc,
 } from "../helpers/database";
 import { db } from "../fire";
 
@@ -37,17 +42,70 @@ function Update() {
     }
   }
 
+  const [data, setData] = useState({
+    uid: "",
+    name: "",
+    dob: "",
+    gender: "",
+    phone: "",
+    house: "",
+    landmark: "",
+    country: "",
+    state: "",
+    pc: "",
+    photo: "",
+  });
+
   const [requestResponses, setRequestResponses] = useState({});
 
   useEffect(async () => {
     const storage = await JSON.parse(localStorage.getItem("user"));
-    setUser(await getEkyc(storage.uid));
+    const data1 = await getEkyc(storage.uid);
+    setUser(data1);
     const res = await getResponses(storage.uid);
-    if (Object.keys(res).length > 0) {
+    if (res && Object.keys(res).length > 0) {
       const blockData = await getBlockData(res.blockHash, res.privateKey);
       setRequestResponses(blockData);
+      console.log(data1, blockData);
+
+      setData({
+        uid: data1.uid,
+        name: data1.name,
+        dob: data1.dob,
+        gender: data1.gender,
+        phone: data1.phone,
+        photo: data1.photo,
+        house: blockData.house,
+        landmark: blockData.lm,
+        country: blockData.country,
+        state: blockData.state,
+        pc: blockData.pc,
+      });
     }
   }, []);
+
+  async function update() {
+    const res = await getDataFromFirebase(data.uid);
+    const privateKey = res.privateKey;
+
+    const rawEkyc = await getRawEkyc(data.uid);
+
+    rawEkyc.KycRes.UidData.Poa._attributes.house = data.house;
+    rawEkyc.KycRes.UidData.Poa._attributes.lm = data.landmark;
+    rawEkyc.KycRes.UidData.Poa._attributes.state = data.state;
+    rawEkyc.KycRes.UidData.Poa._attributes.pc = data.pc;
+
+    // user.house = data.house;
+    // user.lm = data.landmark;
+    // user.state = data.state;
+    // user.pin = data.pin;
+
+    updateKYC(rawEkyc, privateKey);
+  }
+
+  const handleInput1 = (prop) => (event) => {
+    setData({ ...data, [prop]: event.target.value });
+  };
 
   return (
     <Container>
@@ -103,7 +161,7 @@ function Update() {
                     label="Aadhar number"
                     name="aadhar"
                     disabled
-                    value={user.uid}
+                    value={data.uid}
                   />
                   <TextField
                     margin="normal"
@@ -111,7 +169,7 @@ function Update() {
                     label="Name"
                     name="name"
                     disabled
-                    value={user.name}
+                    value={data.name}
                   />
                   <TextField
                     margin="normal"
@@ -119,7 +177,7 @@ function Update() {
                     label="Date of birth"
                     name="dob"
                     disabled
-                    value={user.dob}
+                    value={data.dob}
                   />
                   <TextField
                     margin="normal"
@@ -127,11 +185,11 @@ function Update() {
                     label="Gender"
                     name="gender"
                     disabled
-                    value={user.gender}
+                    value={data.gender}
                   />
                 </Grid>
                 <Grid item sm={3}>
-                  <img src={`data:image/png;base64,${user.photo}`} />
+                  <img src={`data:image/png;base64,${data.photo}`} />
                 </Grid>
               </Grid>
               <TextField
@@ -140,14 +198,16 @@ function Update() {
                 label="Phone"
                 name="phone"
                 disabled
-                value={user.phone}
+                value={data.phone}
+                onChange={handleInput1("phone")}
               />
               <TextField
                 margin="normal"
                 fullWidth
                 label="House"
                 name="house"
-                value={user.house}
+                value={data.house}
+                onChange={handleInput1("house")}
               />
               <Grid container spacing={2}>
                 <Grid item sm={6}>
@@ -156,7 +216,8 @@ function Update() {
                     fullWidth
                     label="Landmark"
                     name="lm"
-                    value={user.lm}
+                    value={data.landmark}
+                    onChange={handleInput1("landmark")}
                   />
                 </Grid>
                 <Grid item sm={6}>
@@ -166,7 +227,8 @@ function Update() {
                     label="Country"
                     name="country"
                     disabled
-                    value={user.country}
+                    value={data.country}
+                    onChange={handleInput1("country")}
                   />
                 </Grid>
               </Grid>
@@ -177,7 +239,8 @@ function Update() {
                     fullWidth
                     label="State"
                     name="state"
-                    value={user.state}
+                    value={data.state}
+                    onChange={handleInput1("state")}
                   />
                 </Grid>
                 <Grid item sm={6}>
@@ -186,13 +249,22 @@ function Update() {
                     fullWidth
                     label="PIN"
                     name="pin"
-                    value={user.pc}
+                    value={data.pc}
+                    onChange={handleInput1("pc")}
                   />
                 </Grid>
               </Grid>
             </Box>
           </>
         )}
+        <Button
+          variant="contained"
+          onClick={() => {
+            update();
+          }}
+        >
+          Update
+        </Button>
       </Box>
     </Container>
   );

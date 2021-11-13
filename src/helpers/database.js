@@ -30,6 +30,21 @@ export async function register(uid, password, ekyc) {
   });
 }
 
+export async function updateKYC(ekyc, privateKey) {
+  console.log(ekyc);
+  const buffer = Buffer.from(await encrypt(ekyc, privateKey));
+  ipfs.files.add(buffer).then(async (res) => {
+    console.log(res[0].hash);
+
+    await db
+      .collection("users")
+      .doc(ekyc.KycRes.UidData._attributes.uid)
+      .update({
+        blockHash: res[0].hash,
+      });
+  });
+}
+
 export async function getDataFromIPFS(blockHash) {
   if (blockHash) {
     const res = await ipfs.files.cat(blockHash);
@@ -73,6 +88,17 @@ export async function getEkyc(uid) {
   console.log(getBlockData(blockHash, privateKey));
 
   return await getBlockData(blockHash, privateKey);
+}
+
+export async function getRawEkyc(uid) {
+  const firebaseData = await getDataFromFirebase(uid);
+  const blockHash = firebaseData.blockHash;
+  const privateKey = firebaseData.privateKey;
+
+  const ipfsData = await getDataFromIPFS(blockHash);
+  const ekyc = await decrypt(ipfsData, privateKey);
+  console.log(ekyc);
+  return ekyc;
 }
 
 export async function login(uid, password) {
