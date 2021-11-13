@@ -16,8 +16,6 @@ export async function register(uid, password, ekyc) {
 
   const privateKey = generate(uid + password);
 
-  // const _data = AES.encrypt(JSON.stringify(ekyc), privateKey);
-
   const buffer = Buffer.from(await encrypt(ekyc, privateKey));
   ipfs.files.add(buffer).then(async (res) => {
     console.log(res[0].hash);
@@ -120,6 +118,10 @@ export async function pushRequest(ownerUID, requesterUID) {
     .set({ incomingRequests: { [requesterUID]: false } }, { merge: true });
 }
 
+export async function popRequest(uid) {
+  await db.collection("users").doc(uid).update({ incomingRequests: {} });
+}
+
 export async function sendKYC(ownerUID, requesterUID) {
   const ownerData = await db.collection("users").doc(ownerUID).get();
   const blockHash = ownerData.data().blockHash;
@@ -127,15 +129,12 @@ export async function sendKYC(ownerUID, requesterUID) {
 
   db.collection("users")
     .doc(requesterUID)
-    .set(
-      {
-        requestResponses: {
-          blockHash: blockHash,
-          privateKey: privateKey,
-        },
+    .set({
+      requestResponses: {
+        blockHash: blockHash,
+        privateKey: privateKey,
       },
-      { merge: true }
-    );
+    });
 }
 
 export async function getResponses(uid) {

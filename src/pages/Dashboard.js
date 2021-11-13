@@ -16,7 +16,7 @@ function Dashboard() {
 
   function handleLogout() {
     localStorage.setItem("user", null);
-    history.push("/login");
+    history.push("/");
   }
 
   function showDetails() {
@@ -39,7 +39,7 @@ function Dashboard() {
         alignItems="center"
         spacing={4}
       >
-        <Typography>Welcome {user?.uid}</Typography>
+        <Typography variant="h4">Welcome {user?.uid}</Typography>
         <Button margin="normal" variant="outlined" onClick={showDetails}>
           My Aadhar
         </Button>
@@ -49,7 +49,7 @@ function Dashboard() {
         <Button variant="outlined" onClick={showRequests}>
           Requests
         </Button>
-        <Button variant="outlined" onClick={handleLogout}>
+        <Button color="warning" variant="outlined" onClick={handleLogout}>
           Logout
         </Button>
       </Stack>

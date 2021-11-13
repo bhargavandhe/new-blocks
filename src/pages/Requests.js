@@ -15,7 +15,7 @@ import { Box } from "@mui/system";
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import { db } from "../fire";
-import { getDataFromFirebase, sendKYC } from "../helpers/database";
+import { getDataFromFirebase, popRequest, sendKYC } from "../helpers/database";
 
 function Requests() {
   const [user, setUser] = useState({ incomingRequests: {} });
@@ -33,13 +33,15 @@ function Requests() {
   }, []);
 
   function Request({ uid }) {
+    const data = JSON.parse(localStorage.getItem("user"));
+
     function agree() {
-      const data = JSON.parse(localStorage.getItem("user"));
       sendKYC(data.uid, uid);
     }
 
     function disagree() {
-      console.log("dis");
+      console.log("pop", data.uid);
+      popRequest(data.uid);
     }
 
     return (

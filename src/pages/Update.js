@@ -19,8 +19,10 @@ import {
   getRawEkyc,
 } from "../helpers/database";
 import { db } from "../fire";
+import { useHistory } from "react-router";
 
 function Update() {
+  const navigate = useHistory();
   const [inputs, setInputs] = useState({
     aadhar: "",
   });
@@ -67,7 +69,6 @@ function Update() {
       const blockData = await getBlockData(res.blockHash, res.privateKey);
       setRequestResponses(blockData);
       console.log(data1, blockData);
-
       setData({
         uid: data1.uid,
         name: data1.name,
@@ -95,12 +96,8 @@ function Update() {
     rawEkyc.KycRes.UidData.Poa._attributes.state = data.state;
     rawEkyc.KycRes.UidData.Poa._attributes.pc = data.pc;
 
-    // user.house = data.house;
-    // user.lm = data.landmark;
-    // user.state = data.state;
-    // user.pin = data.pin;
-
     updateKYC(rawEkyc, privateKey);
+    navigate.push("/dashboard");
   }
 
   const handleInput1 = (prop) => (event) => {

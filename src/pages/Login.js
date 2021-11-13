@@ -32,7 +32,7 @@ function Login() {
   function handleSubmit() {
     login(inputs.aadhar, inputs.password).then((res) => {
       console.log(res);
-      if (res) history.push("/");
+      if (res) history.push("/dashboard");
     });
   }
 

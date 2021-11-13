@@ -9,18 +9,20 @@ import Details from "./pages/Details";
 import PrivateRoute from "./components/PrivateRoute";
 import Update from "./pages/Update";
 import Requests from "./pages/Requests";
+import LandingPage from "./pages/LandingPage";
 
 function App() {
   return (
     <div className="App">
       <Router>
         <Switch>
-          <PrivateRoute exact path="/" component={Dashboard} />
+          <Route exact path="/" component={LandingPage} />
+          <PrivateRoute path="/dashboard" component={Dashboard} />
           <Route path="/login" component={Login} />
-          <Route path="/details" component={Details} />
           <Route path="/register" component={Register} />
-          <Route path="/update" component={Update} />
-          <Route path="/requests" component={Requests} />
+          <PrivateRoute path="/details" component={Details} />
+          <PrivateRoute path="/update" component={Update} />
+          <PrivateRoute path="/requests" component={Requests} />
           <Route path="" component={Page404} />
         </Switch>
       </Router>
