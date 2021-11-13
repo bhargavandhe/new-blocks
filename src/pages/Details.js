@@ -8,7 +8,7 @@ import {
 import { Box } from "@mui/system";
 import React, { useEffect, useState } from "react";
 import { decrypt } from "../helpers/cipher";
-import { getDataFromIPFS } from "../helpers/database";
+import { getDataFromIPFS, getEkyc } from "../helpers/database";
 
 function Details() {
   const [details, setDetails] = useState({
@@ -31,28 +31,8 @@ function Details() {
 
   async function fetch() {
     const data = JSON.parse(localStorage.getItem("user"));
-
-    const cipherText = await getDataFromIPFS(data.userData.blockHash);
-    const ekyc = await decrypt(cipherText, data.userData.privateKey);
-
-    setDetails({
-      uid: ekyc.KycRes.UidData._attributes.uid,
-      dob: ekyc.KycRes.UidData.Poi._attributes.dob,
-      gender: ekyc.KycRes.UidData.Poi._attributes.gender,
-      name: ekyc.KycRes.UidData.Poi._attributes.name,
-      phone: ekyc.KycRes.UidData.Poi._attributes.phone,
-      photo: ekyc.KycRes.UidData.Pht._text,
-      co: ekyc.KycRes.UidData.Poa._attributes.co,
-      country: ekyc.KycRes.UidData.Poa._attributes.country,
-      dist: ekyc.KycRes.UidData.Poa._attributes.dist,
-      house: ekyc.KycRes.UidData.Poa._attributes.house,
-      lm: ekyc.KycRes.UidData.Poa._attributes.lm,
-      loc: ekyc.KycRes.UidData.Poa._attributes.loc,
-      pc: ekyc.KycRes.UidData.Poa._attributes.pc,
-      state: ekyc.KycRes.UidData.Poa._attributes.state,
-      vtc: ekyc.KycRes.UidData.Poa._attributes.vtc,
-    });
-
+    const ekyc = await getEkyc(data.uid);
+    setDetails(ekyc);
     console.log(ekyc);
   }
 

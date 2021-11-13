@@ -12,6 +12,7 @@ import { validate } from "../helpers/validator";
 import { generateCaptcha, getEkyc, sendOTP } from "../helpers/aadharApi";
 import { RefreshRounded } from "@mui/icons-material";
 import { register } from "../helpers/database";
+import { ekyc } from "./ekyc";
 
 const theme = createTheme();
 
@@ -46,27 +47,29 @@ function Register() {
   };
 
   function handleSubmit() {
-    if (!states.otpSent) {
-      sendOTP(inputs.aadhar, results.captcha.captchaTxnId, inputs.captcha).then(
-        (res) => {
-          if (res.data.status === "Success") {
-            setStates({ ...states, otpSent: true });
-            setResults({ ...results, otp: res.data });
-          } else if ((res.data.status = "Invalid Captcha")) {
-            setErrors({ ...errors, captcha: res.data.status });
-          }
-        }
-      );
-    } else {
-      getEkyc(results.otp.txnId, inputs.otp, inputs.aadhar).then((res) => {
-        console.log(res);
-        setStates({
-          ...states,
-          otpVerified: res["KycRes"]["_attributes"].ret == "Y",
-        });
-        register(inputs.aadhar, inputs.password, res);
-      });
-    }
+    // if (!states.otpSent) {
+    //   sendOTP(inputs.aadhar, results.captcha.captchaTxnId, inputs.captcha).then(
+    //     (res) => {
+    //       if (res.data.status === "Success") {
+    //         setStates({ ...states, otpSent: true });
+    //         setResults({ ...results, otp: res.data });
+    //       } else if ((res.data.status = "Invalid Captcha")) {
+    //         setErrors({ ...errors, captcha: res.data.status });
+    //       }
+    //     }
+    //   );
+    // } else {
+    // getEkyc(results.otp.txnId, inputs.otp, inputs.aadhar).then((res) => {
+    //   console.log(res);
+    //   setStates({
+    //     ...states,
+    //     otpVerified: res["KycRes"]["_attributes"].ret == "Y",
+    //   });
+    //   register(inputs.aadhar, inputs.password, res);
+    // });
+    console.log(ekyc);
+    register(inputs.aadhar, inputs.password, ekyc);
+    // }
   }
 
   function _generateCaptcha() {
@@ -114,7 +117,6 @@ function Register() {
             <Grid item>
               <TextField
                 margin="normal"
-                autoComplete={false}
                 required
                 fullWidth
                 label="Captcha"
