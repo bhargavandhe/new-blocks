@@ -1,4 +1,5 @@
 # Team block-eternals
+
 `team code: NkevDDsVtE`
 
 ## Getting Started with `new-blocks`
@@ -29,4 +30,4 @@ The page will reload if you make edits.
 > We're constantly working on it to make it better.
 
 > Reach us out at: [bhargavandhe2310@gmail.com](bhargavandhe2310@gmail.com)
-or Phone: +91 8888544332
+> or Phone: +91 8888544332

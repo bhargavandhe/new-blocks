@@ -1,30 +1,32 @@
+import Page from "../components/Page";
 import {
-  CheckBoxRounded,
   CheckCircleOutlineRounded,
   HighlightOffRounded,
 } from "@mui/icons-material";
 import {
-  Button,
+  Card,
   Container,
   Grid,
   IconButton,
   Stack,
   Typography,
 } from "@mui/material";
-import { Box } from "@mui/system";
 import React, { useEffect, useState } from "react";
-import { useHistory } from "react-router";
-import { db } from "../fire";
-import { getDataFromFirebase, popRequest, sendKYC } from "../helpers/database";
+import { popRequest, sendKYC } from "../helpers/database";
+import { db } from "src/fire";
 
-function Requests() {
+//
+
+// ----------------------------------------------------------------------
+
+export default function Requests() {
   const [user, setUser] = useState({ incomingRequests: {} });
+  const uid = localStorage.getItem("uid");
 
   useEffect(() => {
     console.log("fetching");
-    const data = JSON.parse(localStorage.getItem("user"));
     db.collection("users")
-      .doc(data.uid)
+      .doc(uid)
       .get()
       .then((res) => {
         console.log(res.data());
@@ -32,22 +34,20 @@ function Requests() {
       });
   }, []);
 
-  function Request({ uid }) {
-    const data = JSON.parse(localStorage.getItem("user"));
-
+  function Request({ to }) {
     function agree() {
-      sendKYC(data.uid, uid);
+      sendKYC(uid, to);
     }
 
     function disagree() {
-      console.log("pop", data.uid);
-      popRequest(data.uid);
+      console.log("pop", uid);
+      popRequest(uid);
     }
 
     return (
-      <Grid container>
+      <Grid container alignItems="center">
         <Grid item sm={10}>
-          <Typography>{uid}</Typography>
+          <Typography variant="h6">{to}</Typography>
         </Grid>
         <Grid item sm={1}>
           <IconButton onClick={agree}>
@@ -64,22 +64,25 @@ function Requests() {
   }
 
   return (
-    <Container>
-      <Stack
-        direction="column"
-        justifyContent="center"
-        alignItems="center"
-        spacing={4}
-      >
-        <Typography>Your requests</Typography>
-
-        {user != {} &&
-          Object.keys(user.incomingRequests).map((req) => {
-            return <Request uid={req} />;
-          })}
-      </Stack>
-    </Container>
+    <Page title="Dashboard | Requests">
+      <Container>
+        <Typography variant="h4" sx={{ mb: 5 }}>
+          Requests
+        </Typography>
+        <Card style={{ padding: 32 }}>
+          <Stack
+            direction="column"
+            justifyContent="center"
+            alignItems="center"
+            spacing={4}
+          >
+            {user != {} &&
+              Object.keys(user.incomingRequests).map((req) => {
+                return <Request to={req} />;
+              })}
+          </Stack>
+        </Card>
+      </Container>
+    </Page>
   );
 }
-
-export default Requests;

@@ -1,92 +1,90 @@
-import { React, useEffect, useState } from "react";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import { useHistory } from "react-router-dom";
-import { Grid, IconButton } from "@mui/material";
-import { validate } from "../helpers/validator";
-import { RefreshRounded } from "@mui/icons-material";
-import { login } from "../helpers/database";
-import { db } from "../fire";
+import { Link as RouterLink } from "react-router-dom";
+// material
+import { styled } from "@mui/material/styles";
+import { Card, Stack, Link, Container, Typography } from "@mui/material";
+// layouts
+import AuthLayout from "../layouts/AuthLayout";
+// components
+import Page from "../components/Page";
+import { MHidden } from "../components/@material-extend";
+import { LoginForm } from "../components/authentication/login";
 
-function Login() {
-  const history = useHistory();
-  const [inputs, setInputs] = useState({
-    aadhar: "",
-    password: "",
-  });
+// ----------------------------------------------------------------------
 
-  const [errors, setErrors] = useState({
-    aadhar: "",
-    password: "",
-  });
+const RootStyle = styled(Page)(({ theme }) => ({
+  [theme.breakpoints.up("md")]: {
+    display: "flex",
+  },
+}));
 
-  const handleInput = (prop) => (event) => {
-    setInputs({ ...inputs, [prop]: event.target.value });
-    validate(prop, event.target.value, errors, setErrors);
-  };
+const SectionStyle = styled(Card)(({ theme }) => ({
+  width: "100%",
+  maxWidth: 464,
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  margin: theme.spacing(2, 0, 2, 2),
+}));
 
-  function handleSubmit() {
-    login(inputs.aadhar, inputs.password).then((res) => {
-      console.log(res);
-      if (res) history.push("/dashboard");
-    });
-  }
+const ContentStyle = styled("div")(({ theme }) => ({
+  maxWidth: 480,
+  margin: "auto",
+  display: "flex",
+  minHeight: "100vh",
+  flexDirection: "column",
+  justifyContent: "center",
+  padding: theme.spacing(12, 0),
+}));
 
+// ----------------------------------------------------------------------
+
+export default function Login() {
   return (
-    <Container>
-      <CssBaseline />
-      <Box
-        sx={{
-          marginTop: 8,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <Typography component="h1" variant="h5">
-          Please login into your account
-        </Typography>
-        <Box component="form" noValidate sx={{ mt: 1 }}>
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            label="Aadhar number"
-            name="aadhar"
-            autoFocus
-            value={inputs.aadhar}
-            onChange={handleInput("aadhar")}
-            error={Boolean(errors.aadhar)}
-            helperText={errors.aadhar}
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            type="password"
-            label="Password"
-            name="password"
-            value={inputs.password}
-            onChange={handleInput("password")}
-            error={Boolean(errors.password)}
-            helperText={errors.password}
-          />
-          <Button
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-            onClick={handleSubmit}
-          >
-            Login
-          </Button>
-        </Box>
-      </Box>
-    </Container>
+    <RootStyle title="Login">
+      <AuthLayout>
+        Don’t have an account? &nbsp;
+        <Link
+          underline="none"
+          variant="subtitle2"
+          component={RouterLink}
+          to="/register"
+        >
+          Get started
+        </Link>
+      </AuthLayout>
+
+      <MHidden width="mdDown">
+        <SectionStyle>
+          <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
+            Hi, Welcome Back
+          </Typography>
+          <img src="/static/illustrations/illustration_login.png" alt="login" />
+        </SectionStyle>
+      </MHidden>
+
+      <Container maxWidth="sm">
+        <ContentStyle>
+          <Stack sx={{ mb: 5 }}>
+            <Typography variant="h4" gutterBottom>
+              Sign in to Minimal
+            </Typography>
+            <Typography sx={{ color: "text.secondary" }}>
+              Enter your details below.
+            </Typography>
+          </Stack>
+
+          <LoginForm />
+
+          <MHidden width="smUp">
+            <Typography variant="body2" align="center" sx={{ mt: 3 }}>
+              Don’t have an account?&nbsp;
+              <Link variant="subtitle2" component={RouterLink} to="register">
+                Get started
+              </Link>
+            </Typography>
+          </MHidden>
+        </ContentStyle>
+      </Container>
+    </RootStyle>
   );
 }
-
-export default Login;
